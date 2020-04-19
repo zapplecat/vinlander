@@ -53,7 +53,7 @@ def set_code_mapping(code_map, code_type, code, code_name):
     if code_type not in ['major', 'minor', 'broad']:
         raise ValueError(
             'code_type is not part of the known types for SOC dataset')
-    code_map[code_type][code] = code
+    code_map[code_type][code] = code_name
     return code_map
 
 
