@@ -1,13 +1,14 @@
-import unittest
+from unittest.mock import MagicMock
+from unittest import TestCase
 
 
-class TestLoadXlsxData(unittest.TestCase):
+class TestLoadXlsxData(TestCase):
 
     def test_1(self):
         pass
 
 
-class TestSetCodeMapping(unittest.TestCase):
+class TestSetCodeMapping(TestCase):
 
     def test_1(self):
         pass
