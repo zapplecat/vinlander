@@ -3,10 +3,12 @@ This preprocessor is used to digest Standard Occupational Classification
 information via the Spreadsheet from US Bureau of Labor Statistics.
 '''
 
+import networkx
 import os
 import openpyxl
-import networkx
-import pprint
+import re
+
+from pprint import pprint
 
 
 def main():
@@ -14,17 +16,52 @@ def main():
         os.path.abspath('./data'), 'soc_2018_definitions.xlsx')
     graph = networkx.Graph()
     # Keeping this structure to add other types data to the graph easier
-    graph = load_xlsx_data(filepath, graph)
+    code_map, graph = load_soc_xlsx_data(filepath, graph)
+    print(graph.nodes)
+    pprint(code_map)
 
 
-def load_xlsx_data(filepath, graph):
+def load_soc_xlsx_data(filepath, graph):
     workbook = openpyxl.load_workbook(filepath)
     worksheet = workbook.worksheets[0]
+    '''
+    soc mapping is composed of a 6 digit code aa-bbcd.
+    aa: major group
+    bb: minor group
+    c: broad job
+    d: detailed job and description
+    '''
+    soc_code_map = {}
     for row in worksheet.values:
-        if row[0] == 'Detailed':
-            graph.add_node(row[1], title=row[2])
+        soc_code_type = row[0].lower()
+        soc_code_raw = row[1]
+        soc_code = soc_code_raw.strip('-')
+        soc_code_name = row[2].lower()
+        if soc_code_type == 'detailed':
+            # TODO: Add the rest of the attributes in here
+            graph.add_node(soc_code, title=soc_code_name)
+        else:
+            if soc_code_type not in soc_code_map:
+                soc_code_map[soc_code_type] = {}
+            soc_code_map = set_code_mapping(
+                soc_code_map, soc_code_type, soc_code, soc_code_name)
     workbook.close()
-    return graph
+    return (soc_code_map, graph)
+
+
+def set_code_mapping(code_map, code_type, code, code_name):
+    # TODO: Fix bug here with code_type collision
+    if code_type == 'major':
+        code = code_name[1:2]
+    elif code_type == 'minor':
+        code = code_name[3:4]
+    elif code_type == 'broad':
+        code = code_name[5]
+    else:
+        raise ValueError(
+            'code_type is not part of the known types for SOC dataset')
+    code_map[code_type][code] = code
+    return code_map
 
 
 if __name__ == '__main__':
