@@ -50,14 +50,7 @@ def load_soc_xlsx_data(filepath, graph):
 
 
 def set_code_mapping(code_map, code_type, code, code_name):
-    # TODO: Fix bug here with code_type collision
-    if code_type == 'major':
-        code = code_name[1:2]
-    elif code_type == 'minor':
-        code = code_name[3:4]
-    elif code_type == 'broad':
-        code = code_name[5]
-    else:
+    if code_type not in ['major', 'minor', 'broad']:
         raise ValueError(
             'code_type is not part of the known types for SOC dataset')
     code_map[code_type][code] = code
