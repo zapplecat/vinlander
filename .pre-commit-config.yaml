@@ -12,8 +12,9 @@ repos:
 -   repo: local
     hooks:
     -  id: tests
-       name: run tests
-       entry: pytest -v
+       name: pytest
+       entry: pytest
+       pass_filenames: false
        exclude: 'setup.py'
        language: system
        types: [python]

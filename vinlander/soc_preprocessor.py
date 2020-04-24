@@ -10,6 +10,7 @@ import re
 
 from pprint import pprint
 
+ACCEPTED_SOC_CODE_TYPES = ['major', 'minor', 'broad']
 
 def main():
     filepath = os.path.join(
@@ -50,7 +51,7 @@ def load_soc_xlsx_data(filepath, graph):
 
 
 def set_code_mapping(code_map, code_type, code, code_name):
-    if code_type not in ['major', 'minor', 'broad']:
+    if code_type not in ACCEPTED_SOC_CODE_TYPES:
         raise ValueError(
             'code_type is not part of the known types for SOC dataset')
     elif code_type not in code_map:
