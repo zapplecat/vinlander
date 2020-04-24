@@ -41,6 +41,10 @@ def load_soc_xlsx_data(filepath, graph):
         if soc_code_type == 'detailed':
             # TODO: Add the rest of the attributes in here
             graph.add_node(soc_code, title=soc_code_name)
+        # TODO: This was a bust, should be imitating the data
+        # structure set up in the SOC and use tree instead of
+        # trying to have matching keys, and needing to iterate
+        # through the graph.
         else:
             if soc_code_type not in soc_code_map:
                 soc_code_map[soc_code_type] = {}
