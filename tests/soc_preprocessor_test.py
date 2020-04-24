@@ -19,11 +19,21 @@ class TestSetCodeMapping:
         'input_code_type',
         ['major', 'minor', 'broad'])
     def test_acceptable_code_type(self, input_code_type):
-        soc_preprocessor.set_code_mapping(
+        expected_code_map = {
+            input_code_type: {self.code: self.code_name}
+        }
+        actual_code_map = soc_preprocessor.set_code_mapping(
             self.code_map,
             input_code_type,
             self.code,
             self.code_name)
+        assert expected_code_map == actual_code_map
 
+    # Raise ValueError when code type is not expected
     def test_code_type_exception(self):
-        pass
+        with pytest.raises(ValueError):
+            soc_preprocessor.set_code_mapping(
+                self.code_map,
+                'error',
+                self.code,
+                self.code_name)
