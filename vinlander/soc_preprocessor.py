@@ -6,11 +6,11 @@ information via the Spreadsheet from US Bureau of Labor Statistics.
 import networkx
 import os
 import openpyxl
-import re
 
 from pprint import pprint
 
 ACCEPTED_SOC_CODE_TYPES = ['major', 'minor', 'broad']
+
 
 def main():
     filepath = os.path.join(
@@ -18,8 +18,17 @@ def main():
     graph = networkx.Graph()
     # Keeping this structure to add other types data to the graph easier
     code_map, graph = load_soc_xlsx_data(filepath, graph)
+
+    # TODO: Take this graph and calculate relationship between each node's
+    # description, and assign edge weights
     print(graph.nodes)
+
+    # TODO: Take the code map, and draw hierical-structural edges for
+    # for processed graph
     pprint(code_map)
+
+    # TODO: Save graph in some form of file cache so we can save resources
+    # and only regenerate this when necessary (e.g. better model)
 
 
 def load_soc_xlsx_data(filepath, graph):
@@ -41,10 +50,6 @@ def load_soc_xlsx_data(filepath, graph):
         if soc_code_type == 'detailed':
             # TODO: Add the rest of the attributes in here
             graph.add_node(soc_code, title=soc_code_name)
-        # TODO: This was a bust, should be imitating the data
-        # structure set up in the SOC and use tree instead of
-        # trying to have matching keys, and needing to iterate
-        # through the graph.
         else:
             if soc_code_type not in soc_code_map:
                 soc_code_map[soc_code_type] = {}
