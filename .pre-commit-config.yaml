@@ -13,7 +13,8 @@ repos:
     hooks:
     -  id: tests
        name: run tests
-       entry: pytest -v
+       entry: pytest
+       exclude: 'setup.py'
        language: system
        types: [python]
        stages: [commit, push]
