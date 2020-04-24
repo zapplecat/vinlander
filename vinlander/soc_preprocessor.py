@@ -36,7 +36,7 @@ def load_soc_xlsx_data(filepath, graph):
     for row in worksheet.values:
         soc_code_type = row[0].lower()
         soc_code_raw = row[1]
-        soc_code = soc_code_raw.strip('-')
+        soc_code = soc_code_raw.replace('-', '')
         soc_code_name = row[2].lower()
         if soc_code_type == 'detailed':
             # TODO: Add the rest of the attributes in here
