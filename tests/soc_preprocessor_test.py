@@ -1,11 +1,27 @@
+from unittest import mock
 from unittest.mock import MagicMock
+from vinlander import soc_preprocessor
 import pytest
-import vinlander.soc_preprocessor as soc_preprocessor
+
 
 class TestLoadXlsxData:
+    global mock_workbook
+    mock_workbook = MagicMock()
 
-    def test_1(self):
-        pass
+    @classmethod
+    def setUpClass(cls):
+        global mock_workbook
+        cls.mock_workbook = mock_workbook
+
+    @mock.patch('vinlander.soc_preprocessor.openpyxl.load_workbook',
+                return_value=mock_workbook)
+    @mock.patch('networkx.Graph')
+    def test_1(self, mock_graph, mock_openpyxl_load):
+        soc_preprocessor.load_soc_xlsx_data(
+            'file', mock_graph)
+        mock_openpyxl_load.assert_called_with('file')
+        # Using this assert for better visability
+        assert mock_workbook.close.called
 
 
 class TestSetCodeMapping:
