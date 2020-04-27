@@ -13,7 +13,7 @@ repos:
     hooks:
     -  id: tests
        name: pytest
-       entry: pytest
+       entry: pytest -v
        pass_filenames: false
        exclude: 'setup.py'
        language: system
