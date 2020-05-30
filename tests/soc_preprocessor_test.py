@@ -37,7 +37,7 @@ class TestSetCodeMapping:
         code = '111'
         code_name = 'test_code_name'
         expected_code_map = {
-            code_type: {code: code_name}
+            code: code_name
         }
         actual_code_map = soc_preprocessor.set_code_mapping(
             self.empty_code_map,
@@ -60,17 +60,15 @@ class TestSetCodeMapping:
     # Setting multiple codes of the same code type
     @pytest.mark.parametrize(
         'code_type',
-        ['major', 'minor', 'broad'])
+        ['major', 'minor', 'broad', 'detailed'])
     def test_set_multiple_same_code_type(self, code_type):
         code_1 = '111'
         code_name_1 = 'test_code_name_1'
         code_2 = '222'
         code_name_2 = 'test_code_name_2'
         expected_code_map = {
-            code_type: {
-                code_1: code_name_1,
-                code_2: code_name_2
-            }
+            code_1: code_name_1,
+            code_2: code_name_2
         }
         actual_code_map = soc_preprocessor.set_code_mapping(
             self.empty_code_map,
@@ -96,12 +94,8 @@ class TestSetCodeMapping:
         code_2 = '222'
         code_name_2 = 'test_code_name_2'
         expected_code_map = {
-            first_code_type: {
-                code_1: code_name_1,
-            },
-            second_code_type: {
-                code_2: code_name_2
-            }
+            code_1: code_name_1,
+            code_2: code_name_2
         }
         actual_code_map = soc_preprocessor.set_code_mapping(
             self.empty_code_map,

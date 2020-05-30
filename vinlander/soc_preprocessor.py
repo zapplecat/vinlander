@@ -9,7 +9,7 @@ import openpyxl
 
 from pprint import pprint
 
-ACCEPTED_SOC_CODE_TYPES = ['major', 'minor', 'broad']
+ACCEPTED_SOC_CODE_TYPES = ['major', 'minor', 'broad', 'detailed']
 
 
 def main():
@@ -61,14 +61,14 @@ def load_soc_xlsx_data(filepath, graph):
         soc_code_raw = row[1]
         soc_code = soc_code_raw.replace('-', '')
         soc_code_name = row[2].lower()
+        soc_code_description = row[3].lower()
         if soc_code_type == 'detailed':
-            # TODO: Add the rest of the attributes in here
-            graph.add_node(soc_code, job_title=soc_code_name)
-        else:
-            if soc_code_type not in soc_code_map:
-                soc_code_map[soc_code_type] = {}
-            soc_code_map = set_code_mapping(
-                soc_code_map, soc_code_type, soc_code, soc_code_name)
+            graph.add_node(
+                soc_code,
+                job_title=soc_code_name,
+                job_description=soc_code_description)
+        soc_code_map = set_code_mapping(
+            soc_code_map, soc_code_type, soc_code, soc_code_name)
     workbook.close()
     return (soc_code_map, graph)
 
@@ -77,9 +77,7 @@ def set_code_mapping(code_map, code_type, code, code_name):
     if code_type not in ACCEPTED_SOC_CODE_TYPES:
         raise ValueError(
             'code_type is not part of the known types for SOC dataset')
-    elif code_type not in code_map:
-        code_map[code_type] = {}
-    code_map[code_type][code] = code_name
+    code_map[code] = code_name
     return code_map
 
 
