@@ -61,15 +61,15 @@ def load_soc_xlsx_data(filepath, graph):
         soc_code_raw = row[1]
         soc_code = soc_code_raw.replace('-', '')
         soc_code_name = row[2].lower()
+        # Does not account for scrambled files, might be brittle
+        # TODO: Might be better to rely on code mapping for edge drawing
+        # so I don't overload this
         if soc_code_type == 'detailed':
             soc_code_description = row[3].lower()
             graph.add_node(
                 soc_code,
                 job_title=soc_code_name,
                 job_description=soc_code_description)
-            # Does not account for scrambled files, might be brittle
-            # TODO: Might be better to rely on code mapping for edge drawing
-            # so I don't overload this
             soc_parent_code = soc_code[:-1] + '0'
             graph.add_edge(soc_code, soc_parent_code)
         elif soc_code_type == 'broad':
