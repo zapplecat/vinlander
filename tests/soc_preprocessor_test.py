@@ -16,11 +16,11 @@ class TestLoadXlsxData:
     @mock.patch('vinlander.soc_preprocessor.openpyxl.load_workbook',
                 return_value=mock_workbook)
     @mock.patch('networkx.Graph')
-    def test_1(self, mock_graph, mock_openpyxl_load):
+    def test_close_workbook(self, mock_graph, mock_openpyxl_load):
         soc_preprocessor.load_soc_xlsx_data(
             'file', mock_graph)
         mock_openpyxl_load.assert_called_with('file')
-        # Using this assert for better visability
+        # Using this assert for better test visibility
         assert mock_workbook.close.called
 
 
