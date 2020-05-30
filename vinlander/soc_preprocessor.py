@@ -32,6 +32,19 @@ def main():
 
 
 def load_soc_xlsx_data(filepath, graph):
+    """Loads in soc xlsx data to memory.
+
+    :param filepath: file location of the spreadsheet. In the
+        format of US BLS Standard Occupational Classification
+    :type filepath: str
+    :param graph: a networkx graph object. Adds nodes from the spreadsheet
+        to the graph object. A node is a "detailed" soc code, with appropriate
+        attributes like job_title and description
+    :type graph: networkx.Graph
+    :return: tuple of modified networkx.Graph and dict of non-"detailed" soc
+        codes
+    :rtype: tuple
+    """
     workbook = openpyxl.load_workbook(filepath)
     worksheet = workbook.worksheets[0]
 

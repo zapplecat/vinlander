@@ -4,6 +4,7 @@ from vinlander import soc_preprocessor
 import pytest
 
 
+# TODO: Add additional test cases for conditionals in data loading
 class TestLoadXlsxData:
     global mock_workbook
     mock_workbook = MagicMock()
