@@ -34,6 +34,7 @@ def main():
 def load_soc_xlsx_data(filepath, graph):
     workbook = openpyxl.load_workbook(filepath)
     worksheet = workbook.worksheets[0]
+
     '''
     soc mapping is composed of a 6 digit code aa-bbcd.
     aa: major group
@@ -49,7 +50,7 @@ def load_soc_xlsx_data(filepath, graph):
         soc_code_name = row[2].lower()
         if soc_code_type == 'detailed':
             # TODO: Add the rest of the attributes in here
-            graph.add_node(soc_code, title=soc_code_name)
+            graph.add_node(soc_code, job_title=soc_code_name)
         else:
             if soc_code_type not in soc_code_map:
                 soc_code_map[soc_code_type] = {}
