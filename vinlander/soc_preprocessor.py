@@ -20,11 +20,17 @@ def main():
     # Keeping this structure to add other types data to the graph easier
     code_map, graph = load_soc_xlsx_data(filepath, graph)
 
-    # TODO: Take this graph and calculate relationship between each node's
-    # description, and assign edge weights
-    graph = get_branch_subgraph(graph, '119000')
+    # Draws graph for example purposes
+    graph = get_branch_subgraph(
+        graph,
+        '119000',
+        include_starting_node=True,
+        include_parent=False)
     networkx.draw(graph, with_labels=True)
     pyplot.show()
+
+    # TODO: Take graph and calculate relationship between each node's
+    # description, and assign edge weights
 
     # TODO: Take the code map, and draw hierical-structural edges for
     # for processed graph
@@ -35,24 +41,31 @@ def main():
 
 
 # TODO: This is not a preprocessor API
-def get_branch_subgraph(graph, starting_node, include_starting_node=True,
-                        include_parent=False, full_branch=False):
+def get_branch_subgraph(graph, starting_node, include_starting_node,
+                        include_parent):
     """Gets a subgraph using dfs from a starting node.
 
     :param full_branch: whether to get the full branch, starting from the
         soc major node
     :type full_branch: bool
     """
-    if full_branch:
-        branch = networkx.dfs_tree(graph, source=starting_node)
-    else:
-        branch = networkx.descendants(graph, source=starting_node)
+    additiona_nodes = set()
+    branch = networkx.descendants(graph, source=starting_node)
     if include_parent:
         edge = graph.in_edges(starting_node)
         if edge:
-            branch.add(list(edge)[0][0])
+            additiona_nodes.add(list(edge)[0][0])
     if include_starting_node:
-        branch.add(starting_node)
+        additiona_nodes.add(starting_node)
+    return networkx.subgraph_view(
+        graph,
+        filter_node=lambda node: node in branch or node in additiona_nodes)
+
+
+def get_subgraph_from_branch_root(graph, starting_node):
+    """Gets a subgraph from root of starting node using dfs.
+    """
+    branch = networkx.dfs_tree(graph, source=starting_node)
     return networkx.subgraph_view(
         graph,
         filter_node=lambda node: node in branch)

@@ -34,22 +34,115 @@ class TestGetBranchSubgraph:
             [(1, 2), (2, 3), (2, 4)])
 
     @pytest.mark.parametrize(
-        'start_node, parent, full_branch',
-        [
-            (False, False, False),
-            (True, False, False),
-            (False, True, False),
-            (False, False, True),
-            (True, True, False),
-            (True, False, True),
-            (False, True, True),
-            (True, True, True)
-        ])
-    def test_graph_get_from_root(self, start_node, parent, full_branch):
+        'start_node_bool, parent_bool',
+        [(True, True), (True, False)])
+    def test_graph_get_from_root_same_view(
+            self, start_node_bool, parent_bool):
         self.expected_graph.add_edges_from(
             [(1, 2), (2, 3), (2, 4)])
         actual_graph_view = soc_preprocessor.get_branch_subgraph(
-            self.graph, 1)
+            self.graph, 1, start_node_bool, parent_bool)
+        assert self.expected_graph.nodes() == actual_graph_view.nodes()
+        assert self.expected_graph.edges() == actual_graph_view.edges()
+
+    @pytest.mark.parametrize(
+        'start_node_bool, parent_bool',
+        [(False, False), (False, True)])
+    def test_graph_get_from_root_no_start_node(
+            self, start_node_bool, parent_bool):
+        self.expected_graph.add_edges_from(
+            [(2, 3), (2, 4)])
+        actual_graph_view = soc_preprocessor.get_branch_subgraph(
+            self.graph, 1, start_node_bool, parent_bool)
+        assert self.expected_graph.nodes() == actual_graph_view.nodes()
+        assert self.expected_graph.edges() == actual_graph_view.edges()
+
+    @pytest.mark.parametrize(
+        'start_node_bool, parent_bool',
+        [(True, True)])
+    def test_graph_get_from_leaf_with_start_node_with_parent(
+            self, start_node_bool, parent_bool):
+        self.expected_graph.add_edges_from([(2, 4)])
+        actual_graph_view = soc_preprocessor.get_branch_subgraph(
+            self.graph, 4, start_node_bool, parent_bool)
+        assert self.expected_graph.nodes() == actual_graph_view.nodes()
+        assert self.expected_graph.edges() == actual_graph_view.edges()
+
+    @pytest.mark.parametrize(
+        'start_node_bool, parent_bool',
+        [(False, False)])
+    def test_graph_get_from_leaf_no_start_node_no_parent(
+            self, start_node_bool, parent_bool):
+        actual_graph_view = soc_preprocessor.get_branch_subgraph(
+            self.graph, 4, start_node_bool, parent_bool)
+        assert self.expected_graph.nodes() == actual_graph_view.nodes()
+        assert self.expected_graph.edges() == actual_graph_view.edges()
+
+    @pytest.mark.parametrize(
+        'start_node_bool, parent_bool',
+        [(False, True)])
+    def test_graph_get_from_leaf_no_start_node_with_parent(
+            self, start_node_bool, parent_bool):
+        self.expected_graph.add_node(2)
+        actual_graph_view = soc_preprocessor.get_branch_subgraph(
+            self.graph, 4, start_node_bool, parent_bool)
+        assert self.expected_graph.nodes() == actual_graph_view.nodes()
+        assert self.expected_graph.edges() == actual_graph_view.edges()
+
+    @pytest.mark.parametrize(
+        'start_node_bool, parent_bool',
+        [(True, False)])
+    def test_graph_get_from_leaf_with_start_node_no_parent(
+            self, start_node_bool, parent_bool):
+        self.expected_graph.add_node(4)
+        actual_graph_view = soc_preprocessor.get_branch_subgraph(
+            self.graph, 4, start_node_bool, parent_bool)
+        assert self.expected_graph.nodes() == actual_graph_view.nodes()
+        assert self.expected_graph.edges() == actual_graph_view.edges()
+
+    @pytest.mark.parametrize(
+        'start_node_bool, parent_bool',
+        [(True, True)])
+    def test_graph_get_from_branch_with_start_node_with_parent(
+            self, start_node_bool, parent_bool):
+        self.expected_graph.add_edges_from(
+            [(1, 2), (2, 3), (2, 4)])
+        actual_graph_view = soc_preprocessor.get_branch_subgraph(
+            self.graph, 2, start_node_bool, parent_bool)
+        assert self.expected_graph.nodes() == actual_graph_view.nodes()
+        assert self.expected_graph.edges() == actual_graph_view.edges()
+
+    @pytest.mark.parametrize(
+        'start_node_bool, parent_bool',
+        [(False, False)])
+    def test_graph_get_from_branch_no_start_node_no_parent(
+            self, start_node_bool, parent_bool):
+        self.expected_graph.add_nodes_from([3, 4])
+        actual_graph_view = soc_preprocessor.get_branch_subgraph(
+            self.graph, 2, start_node_bool, parent_bool)
+        assert self.expected_graph.nodes() == actual_graph_view.nodes()
+        assert self.expected_graph.edges() == actual_graph_view.edges()
+
+    @pytest.mark.parametrize(
+        'start_node_bool, parent_bool',
+        [(False, True)])
+    def test_graph_get_from_branch_no_start_node_with_parent(
+            self, start_node_bool, parent_bool):
+        self.expected_graph.add_nodes_from([1, 3, 4])
+        actual_graph_view = soc_preprocessor.get_branch_subgraph(
+            self.graph, 2, start_node_bool, parent_bool)
+        assert self.expected_graph.nodes() == actual_graph_view.nodes()
+        assert self.expected_graph.edges() == actual_graph_view.edges()
+
+    @pytest.mark.parametrize(
+        'start_node_bool, parent_bool',
+        [(True, False)])
+    def test_graph_get_from_branch_with_start_node_no_parent(
+            self, start_node_bool, parent_bool):
+        self.expected_graph.add_edges_from(
+            [(2, 3), (2, 4)])
+        actual_graph_view = soc_preprocessor.get_branch_subgraph(
+            self.graph, 2, start_node_bool, parent_bool)
         assert self.expected_graph.nodes() == actual_graph_view.nodes()
         assert self.expected_graph.edges() == actual_graph_view.edges()
 
