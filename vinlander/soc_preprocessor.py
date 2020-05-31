@@ -16,17 +16,15 @@ ACCEPTED_SOC_CODE_TYPES = ['major', 'minor', 'broad', 'detailed']
 def main():
     filepath = os.path.join(
         os.path.abspath('./data'), 'soc_2018_definitions.xlsx')
-    graph = networkx.Graph()
+    graph = networkx.DiGraph()
     # Keeping this structure to add other types data to the graph easier
     code_map, graph = load_soc_xlsx_data(filepath, graph)
 
     # TODO: Take this graph and calculate relationship between each node's
     # description, and assign edge weights
-    # sub_graph = get_branch_subgraph(graph, '291210')
-    # networkx.draw(sub_graph, with_labels=True)
+    graph = get_branch_subgraph(graph, '119000')
     networkx.draw(graph, with_labels=True)
     pyplot.show()
-    # print(graph.nodes)
 
     # TODO: Take the code map, and draw hierical-structural edges for
     # for processed graph
@@ -36,14 +34,28 @@ def main():
     # and only regenerate this when necessary (e.g. better model)
 
 
-# TODO: Current gets full branch, should be filtering starting with sub-node
-def get_branch_subgraph(graph, starting_node):
+# TODO: This is not a preprocessor API
+def get_branch_subgraph(graph, starting_node, include_starting_node=True,
+                        include_parent=False, full_branch=False):
     """Gets a subgraph using dfs from a starting node.
+
+    :param full_branch: whether to get the full branch, starting from the
+        soc major node
+    :type full_branch: bool
     """
-    tree = networkx.dfs_tree(graph, source=starting_node)
+    if full_branch:
+        branch = networkx.dfs_tree(graph, source=starting_node)
+    else:
+        branch = networkx.descendants(graph, source=starting_node)
+    if include_parent:
+        edge = graph.in_edges(starting_node)
+        if edge:
+            branch.add(list(edge)[0][0])
+    if include_starting_node:
+        branch.add(starting_node)
     return networkx.subgraph_view(
         graph,
-        filter_node=lambda node: node in tree)
+        filter_node=lambda node: node in branch)
 
 
 def load_soc_xlsx_data(filepath, graph):
@@ -84,37 +96,44 @@ def load_soc_xlsx_data(filepath, graph):
             graph.add_node(
                 soc_code,
                 job_title=soc_code_name,
-                job_description=soc_code_description)
+                job_description=soc_code_description,
+                soc_type=soc_code_type)
             # TODO: Fix this jerry rig
             soc_parent_code = soc_code[:-1] + '0'
             alt_parent_code = int(soc_parent_code) - 1
             alt_parent_code = str(alt_parent_code)[:-1] + '0'
             if soc_parent_code in graph:
-                graph.add_edge(soc_code, soc_parent_code)
+                graph.add_edge(soc_parent_code, soc_code)
             elif alt_parent_code in graph:
                 # Catches cases where detailed category extends beyond single
                 # digit in above schema and soc mapping becomes aa-bcdd
-                graph.add_edge(soc_code, alt_parent_code)
+                graph.add_edge(alt_parent_code, soc_code)
             else:
                 raise RuntimeError(
                     '{} detailed code not loaded'.format(soc_code))
         elif soc_code_type == 'broad':
-            graph.add_node(soc_code)
+            graph.add_node(
+                soc_code,
+                soc_type=soc_code_type)
             # TODO: Fix this jerry rig
             soc_parent_code = soc_code[:-2] + '00'
             soc_parent_code_alt = soc_code[:-3] + '000'
             if soc_parent_code in graph:
-                graph.add_edge(soc_code, soc_parent_code)
+                graph.add_edge(soc_parent_code, soc_code)
             elif soc_parent_code_alt in graph:
-                graph.add_edge(soc_code, soc_parent_code_alt)
+                graph.add_edge(soc_parent_code_alt, soc_code)
         elif soc_code_type == 'minor':
-            graph.add_node(soc_code)
+            graph.add_node(
+                soc_code,
+                soc_type=soc_code_type)
             soc_parent_code = soc_code[:-4] + '0000'
             if soc_parent_code in graph:
-                graph.add_edge(soc_code, soc_parent_code)
+                graph.add_edge(soc_parent_code, soc_code)
         elif soc_code_type == 'major':
             if soc_code not in graph:
-                graph.add_node(soc_code)
+                graph.add_node(
+                    soc_code,
+                    soc_type=soc_code_type)
         soc_code_map = set_code_mapping(
             soc_code_map, soc_code_type, soc_code, soc_code_name)
     workbook.close()
