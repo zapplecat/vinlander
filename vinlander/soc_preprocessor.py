@@ -3,6 +3,7 @@ This preprocessor is used to digest Standard Occupational Classification
 information via the Spreadsheet from US Bureau of Labor Statistics.
 '''
 
+import matplotlib.pyplot as pyplot
 import networkx
 import os
 import openpyxl
@@ -21,7 +22,11 @@ def main():
 
     # TODO: Take this graph and calculate relationship between each node's
     # description, and assign edge weights
-    print(graph.nodes)
+    # sub_graph = get_branch_subgraph(graph, '291210')
+    # networkx.draw(sub_graph, with_labels=True)
+    networkx.draw(graph, with_labels=True)
+    pyplot.show()
+    # print(graph.nodes)
 
     # TODO: Take the code map, and draw hierical-structural edges for
     # for processed graph
@@ -29,6 +34,16 @@ def main():
 
     # TODO: Save graph in some form of file cache so we can save resources
     # and only regenerate this when necessary (e.g. better model)
+
+
+# TODO: Current gets full branch, should be filtering starting with sub-node
+def get_branch_subgraph(graph, starting_node):
+    """Gets a subgraph using dfs from a starting node.
+    """
+    tree = networkx.dfs_tree(graph, source=starting_node)
+    return networkx.subgraph_view(
+        graph,
+        filter_node=lambda node: node in tree)
 
 
 def load_soc_xlsx_data(filepath, graph):
@@ -51,7 +66,7 @@ def load_soc_xlsx_data(filepath, graph):
     '''
     soc mapping is composed of a 6 digit code aa-bccd.
     aa: major group
-    bb: minor group
+    b: minor group
     cc: broad job
     d: detailed job and description
     '''
@@ -70,18 +85,36 @@ def load_soc_xlsx_data(filepath, graph):
                 soc_code,
                 job_title=soc_code_name,
                 job_description=soc_code_description)
+            # TODO: Fix this jerry rig
             soc_parent_code = soc_code[:-1] + '0'
-            graph.add_edge(soc_code, soc_parent_code)
+            alt_parent_code = int(soc_parent_code) - 1
+            alt_parent_code = str(alt_parent_code)[:-1] + '0'
+            if soc_parent_code in graph:
+                graph.add_edge(soc_code, soc_parent_code)
+            elif alt_parent_code in graph:
+                # Catches cases where detailed category extends beyond single
+                # digit in above schema and soc mapping becomes aa-bcdd
+                graph.add_edge(soc_code, soc_parent_code)
+            else:
+                raise RuntimeError(
+                    '{} detailed code not loaded'.format(soc_code))
         elif soc_code_type == 'broad':
             graph.add_node(soc_code)
+            # TODO: Fix this jerry rig
             soc_parent_code = soc_code[:-2] + '00'
-            graph.add_edge(soc_code, soc_parent_code)
+            soc_parent_code_alt = soc_code[:-3] + '000'
+            if soc_parent_code in graph:
+                graph.add_edge(soc_code, soc_parent_code)
+            elif soc_parent_code_alt in graph:
+                graph.add_edge(soc_code, soc_parent_code_alt)
         elif soc_code_type == 'minor':
             graph.add_node(soc_code)
-            soc_parent_code = soc_code[:-3] + '000'
-            graph.add_edge(soc_code, soc_parent_code)
+            soc_parent_code = soc_code[:-4] + '0000'
+            if soc_parent_code in graph:
+                graph.add_edge(soc_code, soc_parent_code)
         elif soc_code_type == 'major':
-            graph.add_node(soc_code)
+            if soc_code not in graph:
+                graph.add_node(soc_code)
         soc_code_map = set_code_mapping(
             soc_code_map, soc_code_type, soc_code, soc_code_name)
     workbook.close()
