@@ -94,7 +94,7 @@ def load_soc_xlsx_data(filepath, graph):
             elif alt_parent_code in graph:
                 # Catches cases where detailed category extends beyond single
                 # digit in above schema and soc mapping becomes aa-bcdd
-                graph.add_edge(soc_code, soc_parent_code)
+                graph.add_edge(soc_code, alt_parent_code)
             else:
                 raise RuntimeError(
                     '{} detailed code not loaded'.format(soc_code))
