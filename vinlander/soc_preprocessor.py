@@ -41,31 +41,21 @@ def main():
 
 
 # TODO: This is not a preprocessor API
-def get_branch_subgraph(graph, starting_node, include_starting_node,
-                        include_parent):
+def get_branch_subgraph(graph, starting_node, include_parent=False):
     """Gets a subgraph using dfs from a starting node.
+    The subgraph is read only.
 
-    :param full_branch: whether to get the full branch, starting from the
-        soc major node
-    :type full_branch: bool
-    """
-    additiona_nodes = set()
-    branch = networkx.descendants(graph, source=starting_node)
-    if include_parent:
-        edge = graph.in_edges(starting_node)
-        if edge:
-            additiona_nodes.add(list(edge)[0][0])
-    if include_starting_node:
-        additiona_nodes.add(starting_node)
-    return networkx.subgraph_view(
-        graph,
-        filter_node=lambda node: node in branch or node in additiona_nodes)
-
-
-def get_subgraph_from_branch_root(graph, starting_node):
-    """Gets a subgraph from root of starting node using dfs.
+    :param starting_node: node to retrieve subgraph from.
+    :param include_parent: whether to include the parent node of the
+        starting node
+    :type includ_parent: bool
     """
     branch = networkx.dfs_tree(graph, source=starting_node)
+    if include_parent:
+        edge = graph.in_edges(starting_node)
+        return networkx.subgraph_view(
+            graph,
+            filter_node=lambda node: node in branch or node is list(edge)[0][0])
     return networkx.subgraph_view(
         graph,
         filter_node=lambda node: node in branch)
