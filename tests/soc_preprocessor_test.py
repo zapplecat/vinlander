@@ -1,6 +1,7 @@
 from unittest import mock
 from unittest.mock import MagicMock
 from vinlander import soc_preprocessor
+import networkx as nx
 import pytest
 
 
@@ -24,6 +25,33 @@ class TestLoadXlsxData:
         # Using this assert for better test visibility
         assert mock_workbook.close.called
 
+class TestGetBranchSubgraph:
+
+    def setup_method(self):
+        self.expected_graph = nx.DiGraph()
+        self.graph = nx.DiGraph()
+        self.graph.add_edges_from(
+            [(1, 2), (2, 3), (2, 4)])
+
+    @pytest.mark.parametrize(
+        'start_node, parent, full_branch',
+        [
+            (False, False, False),
+            (True, False, False),
+            (False, True, False),
+            (False, False, True),
+            (True, True, False),
+            (True, False, True),
+            (False, True, True),
+            (True, True, True)
+        ])
+    def test_graph_get_from_root(self, start_node, parent, full_branch):
+        self.expected_graph.add_edges_from(
+            [(1, 2), (2, 3), (2, 4)])
+        actual_graph_view = soc_preprocessor.get_branch_subgraph(
+            self.graph, 1)
+        assert self.expected_graph.nodes() == actual_graph_view.nodes()
+        assert self.expected_graph.edges() == actual_graph_view.edges()
 
 class TestSetCodeMapping:
 
