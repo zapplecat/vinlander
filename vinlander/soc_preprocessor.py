@@ -55,7 +55,8 @@ def get_branch_subgraph(graph, starting_node, include_parent=False):
         edge = graph.in_edges(starting_node)
         return networkx.subgraph_view(
             graph,
-            filter_node=lambda node: node in branch or node is list(edge)[0][0])
+            filter_node=lambda node: (
+                node in branch or node is list(edge)[0][0]))
     return networkx.subgraph_view(
         graph,
         filter_node=lambda node: node in branch)
