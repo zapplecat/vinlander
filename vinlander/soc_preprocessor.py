@@ -24,7 +24,6 @@ def main():
     graph = get_branch_subgraph(
         graph,
         '119000',
-        include_starting_node=True,
         include_parent=False)
     networkx.draw(graph, with_labels=True)
     pyplot.show()
