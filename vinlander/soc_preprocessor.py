@@ -24,7 +24,7 @@ def main():
     graph = get_branch_subgraph(
         graph,
         '119000',
-        include_parent=False)
+        include_parent=True)
     networkx.draw(graph, with_labels=True)
     pyplot.show()
 
@@ -40,7 +40,9 @@ def main():
 
 
 # TODO: This is not a preprocessor API
-def get_branch_subgraph(graph, starting_node, include_parent=False):
+def get_branch_subgraph(graph,
+                        starting_node,
+                        include_parent=False):
     """Gets a subgraph using dfs from a starting node.
     The subgraph is read only.
 
@@ -85,7 +87,10 @@ def load_soc_xlsx_data(filepath, graph):
     cc: broad job
     d: detailed job and description
     '''
-    soc_code_map = {}
+    soc_code_map = {
+        accepted_code_type: {}
+        for accepted_code_type in ACCEPTED_SOC_CODE_TYPES
+    }
     for row in worksheet.values:
         soc_code_type = row[0].lower()
         soc_code_raw = row[1]
@@ -117,6 +122,7 @@ def load_soc_xlsx_data(filepath, graph):
         elif soc_code_type == 'broad':
             graph.add_node(
                 soc_code,
+                job_title=soc_code_name,
                 soc_type=soc_code_type)
             # TODO: Fix this jerry rig
             soc_parent_code = soc_code[:-2] + '00'
@@ -128,6 +134,7 @@ def load_soc_xlsx_data(filepath, graph):
         elif soc_code_type == 'minor':
             graph.add_node(
                 soc_code,
+                job_title=soc_code_name,
                 soc_type=soc_code_type)
             soc_parent_code = soc_code[:-4] + '0000'
             if soc_parent_code in graph:
@@ -136,6 +143,7 @@ def load_soc_xlsx_data(filepath, graph):
             if soc_code not in graph:
                 graph.add_node(
                     soc_code,
+                    job_title=soc_code_name,
                     soc_type=soc_code_type)
         soc_code_map = set_code_mapping(
             soc_code_map, soc_code_type, soc_code, soc_code_name)
@@ -147,7 +155,7 @@ def set_code_mapping(code_map, code_type, code, code_name):
     if code_type not in ACCEPTED_SOC_CODE_TYPES:
         raise ValueError(
             'code_type is not part of the known types for SOC dataset')
-    code_map[code] = code_name
+    code_map[code_type][code] = code_name
     return code_map
 
 

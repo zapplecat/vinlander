@@ -79,7 +79,14 @@ class TestGetBranchSubgraph:
 class TestSetCodeMapping:
 
     def setup_method(self):
-        self.empty_code_map = {}
+        self.empty_code_map = {
+            accepted_code_type: {}
+            for accepted_code_type in soc_preprocessor.ACCEPTED_SOC_CODE_TYPES
+        }
+        self.expected_code_map = {
+            accepted_code_type: {}
+            for accepted_code_type in soc_preprocessor.ACCEPTED_SOC_CODE_TYPES
+        }
 
     @pytest.mark.parametrize(
         'code_type',
@@ -87,15 +94,13 @@ class TestSetCodeMapping:
     def test_acceptable_code_type(self, code_type):
         code = '111'
         code_name = 'test_code_name'
-        expected_code_map = {
-            code: code_name
-        }
+        self.expected_code_map[code_type][code] = code_name
         actual_code_map = soc_preprocessor.set_code_mapping(
             self.empty_code_map,
             code_type,
             code,
             code_name)
-        assert expected_code_map == actual_code_map
+        assert self.expected_code_map == actual_code_map
 
     # Raise ValueError when code type is not expected
     def test_code_type_exception(self):
@@ -117,10 +122,8 @@ class TestSetCodeMapping:
         code_name_1 = 'test_code_name_1'
         code_2 = '222'
         code_name_2 = 'test_code_name_2'
-        expected_code_map = {
-            code_1: code_name_1,
-            code_2: code_name_2
-        }
+        self.expected_code_map[code_type][code_1] = code_name_1
+        self.expected_code_map[code_type][code_2] = code_name_2
         actual_code_map = soc_preprocessor.set_code_mapping(
             self.empty_code_map,
             code_type,
@@ -131,7 +134,7 @@ class TestSetCodeMapping:
             code_type,
             code_2,
             code_name_2)
-        assert expected_code_map == actual_code_map
+        assert self.expected_code_map == actual_code_map
 
     # Setting multiple codes of the different code types
     @pytest.mark.parametrize(
@@ -144,10 +147,8 @@ class TestSetCodeMapping:
         code_name_1 = 'test_code_name_1'
         code_2 = '222'
         code_name_2 = 'test_code_name_2'
-        expected_code_map = {
-            code_1: code_name_1,
-            code_2: code_name_2
-        }
+        self.expected_code_map[first_code_type][code_1] = code_name_1
+        self.expected_code_map[second_code_type][code_2] = code_name_2
         actual_code_map = soc_preprocessor.set_code_mapping(
             self.empty_code_map,
             first_code_type,
@@ -158,4 +159,4 @@ class TestSetCodeMapping:
             second_code_type,
             code_2,
             code_name_2)
-        assert expected_code_map == actual_code_map
+        assert self.expected_code_map == actual_code_map
